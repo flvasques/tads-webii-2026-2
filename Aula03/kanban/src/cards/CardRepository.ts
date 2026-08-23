@@ -11,8 +11,9 @@ export interface CardRepository {
   save(card: Card): void;
   findAll(): Card[];
   findById(id: string): Card | undefined;
-  findByColumn(columnId: string): Card[];
-  existsWithTitleInColumn(title: string, columnId: string, excludeId?: string): boolean;
+  findByColumn(columnId: string, boardId?: string): Card[];
+  findByBoard(boardId: string): Card[];
+  existsWithTitleInColumn(title: string, columnId: string, excludeId?: string, boardId?: string): boolean;
   delete(id: string): void;
 }
 
@@ -31,15 +32,24 @@ export class InMemoryCardRepository implements CardRepository {
     return this.cards.get(id);
   }
 
-  findByColumn(columnId: string): Card[] {
-    return this.findAll().filter((card) => card.columnId === columnId);
+  findByColumn(columnId: string, boardId?: string): Card[] {
+    return this.findAll().filter(
+      (card) => card.columnId === columnId && (boardId === undefined || card.boardId === boardId),
+    );
   }
 
-  existsWithTitleInColumn(title: string, columnId: string, excludeId?: string): boolean {
+  findByBoard(boardId: string): Card[] {
+    return this.findAll().filter((card) => card.boardId === boardId);
+  }
+
+  existsWithTitleInColumn(title: string, columnId: string, excludeId?: string, boardId?: string): boolean {
     const normalized = title.trim().toLowerCase();
     return this.findAll().some(
       (card) =>
-        card.id !== excludeId && card.columnId === columnId && card.title.toLowerCase() === normalized,
+        card.id !== excludeId &&
+        card.columnId === columnId &&
+        (boardId === undefined || card.boardId === boardId) &&
+        card.title.toLowerCase() === normalized,
     );
   }
 

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Card } from '../../../src/cards/Card.js';
 import { InvalidCardColumnError, InvalidCardTitleError, InvalidPriorityError } from '../../../src/cards/errors.js';
-import { NotImplementedError } from '../../../src/shared/errors.js';
 
 describe('Card.create', () => {
   it('cria um cartão com prioridade baixa e descrição vazia por padrão', () => {
@@ -12,6 +11,13 @@ describe('Card.create', () => {
     expect(card.priority).toBe('baixa');
     expect(card.description).toBe('');
     expect(card.id).toBeTypeOf('string');
+    expect(card.boardId).toBe('board-1');
+  });
+
+  it('aceita um boardId explícito (Atividade 11)', () => {
+    const card = Card.create('No outro quadro', 'col-a', 'baixa', '', 'board-2');
+
+    expect(card.boardId).toBe('board-2');
   });
 
   it('aceita prioridade e descrição customizadas, normalizando o título', () => {
@@ -75,16 +81,43 @@ describe('Card#changeColumn (Atividade 2)', () => {
   });
 });
 
-describe('métodos ainda não implementados (atividade 3)', () => {
-  it('Card#rename lança NotImplementedError', () => {
-    const card = Card.create('Cartão', 'col-todo');
+describe('Card#rename e Card#changePriority (Atividade 3)', () => {
+  it('renomeia o cartão e normaliza o título', () => {
+    const card = Card.create('Cartão', 'col-todo', 'baixa', 'desc original');
 
-    expect(() => card.rename('Novo título')).toThrow(NotImplementedError);
+    card.rename('  Novo título  ');
+
+    expect(card.title).toBe('Novo título');
+    expect(card.description).toBe('desc original');
   });
 
-  it('Card#changePriority lança NotImplementedError', () => {
+  it('atualiza título e descrição quando a descrição é informada', () => {
     const card = Card.create('Cartão', 'col-todo');
 
-    expect(() => card.changePriority('alta')).toThrow(NotImplementedError);
+    card.rename('Novo título', '  nova descrição  ');
+
+    expect(card.title).toBe('Novo título');
+    expect(card.description).toBe('nova descrição');
+  });
+
+  it('rejeita título inválido em rename', () => {
+    const card = Card.create('Cartão', 'col-todo');
+
+    expect(() => card.rename('ab')).toThrow(InvalidCardTitleError);
+  });
+
+  it('troca a prioridade do cartão', () => {
+    const card = Card.create('Cartão', 'col-todo', 'baixa');
+
+    card.changePriority('alta');
+
+    expect(card.priority).toBe('alta');
+  });
+
+  it('rejeita prioridade inválida em changePriority', () => {
+    const card = Card.create('Cartão', 'col-todo');
+
+    // @ts-expect-error propositalmente passando um valor fora do union
+    expect(() => card.changePriority('urgente')).toThrow(InvalidPriorityError);
   });
 });

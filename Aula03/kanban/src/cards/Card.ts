@@ -1,6 +1,5 @@
 import { randomUUID } from 'node:crypto';
 import { InvalidCardColumnError, InvalidCardTitleError, InvalidPriorityError } from './errors.js';
-import { NotImplementedError } from '../shared/errors.js';
 
 export type CardPriority = 'baixa' | 'média' | 'alta';
 
@@ -10,6 +9,7 @@ export interface CardSnapshot {
   description: string;
   priority: CardPriority;
   columnId: string;
+  boardId: string;
   createdAt: string;
 }
 
@@ -32,10 +32,17 @@ export class Card {
     private _description: string,
     private _priority: CardPriority,
     private _columnId: string,
+    private readonly _boardId: string,
     private readonly _createdAt: string,
   ) {}
 
-  static create(title: string, columnId: string, priority: CardPriority = 'baixa', description = ''): Card {
+  static create(
+    title: string,
+    columnId: string,
+    priority: CardPriority = 'baixa',
+    description = '',
+    boardId = 'board-1',
+  ): Card {
     const normalizedTitle = Card.validateTitle(title);
     const normalizedColumnId = Card.validateColumnId(columnId);
     const normalizedPriority = Card.validatePriority(priority);
@@ -45,6 +52,7 @@ export class Card {
       description.trim(),
       normalizedPriority,
       normalizedColumnId,
+      boardId,
       new Date().toISOString(),
     );
   }
@@ -57,6 +65,7 @@ export class Card {
       snapshot.description,
       snapshot.priority,
       snapshot.columnId,
+      snapshot.boardId,
       snapshot.createdAt,
     );
   }
@@ -108,6 +117,10 @@ export class Card {
     return this._columnId;
   }
 
+  get boardId(): string {
+    return this._boardId;
+  }
+
   /**
    * Atividade 2: move o cartão para outra coluna. O Card só valida a
    * forma do `columnId`; se a coluna existe no quadro (e o limite de WIP,
@@ -117,14 +130,17 @@ export class Card {
     this._columnId = Card.validateColumnId(newColumnId);
   }
 
-  /** TODO (Atividade 3): renomear e/ou trocar a descrição do cartão. */
-  rename(_newTitle: string, _newDescription?: string): void {
-    throw new NotImplementedError('Card#rename');
+  /** Atividade 3: renomeia o cartão e, se informada, troca a descrição. */
+  rename(newTitle: string, newDescription?: string): void {
+    this._title = Card.validateTitle(newTitle);
+    if (newDescription !== undefined) {
+      this._description = newDescription.trim();
+    }
   }
 
-  /** TODO (Atividade 3): trocar a prioridade do cartão. */
-  changePriority(_priority: CardPriority): void {
-    throw new NotImplementedError('Card#changePriority');
+  /** Atividade 3: troca a prioridade do cartão. */
+  changePriority(priority: CardPriority): void {
+    this._priority = Card.validatePriority(priority);
   }
 
   toSnapshot(): CardSnapshot {
@@ -134,6 +150,7 @@ export class Card {
       description: this._description,
       priority: this._priority,
       columnId: this._columnId,
+      boardId: this._boardId,
       createdAt: this._createdAt,
     };
   }

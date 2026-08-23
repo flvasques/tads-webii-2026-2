@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { Board } from '../../../src/boards/Board.js';
 import { Column } from '../../../src/boards/Column.js';
-import { ColumnNotFoundError } from '../../../src/boards/errors.js';
-import { NotImplementedError } from '../../../src/shared/errors.js';
+import { ColumnNotFoundError, DuplicateColumnNameError } from '../../../src/boards/errors.js';
+import { InvalidColumnNameError } from '../../../src/boards/errors.js';
 
 function buildBoard(): Board {
   const columns = [
@@ -17,6 +17,7 @@ describe('Board — getters básicos', () => {
     const board = buildBoard();
 
     expect(board.id).toBe('board-1');
+    expect(board.name).toBe('Quadro de Teste');
     expect(board.columns).toHaveLength(2);
   });
 });
@@ -46,10 +47,44 @@ describe('Board#hasColumn', () => {
 });
 
 describe('Board#addColumn', () => {
-  it('ainda não está implementado (Atividade 7)', () => {
+  it('gera id, atribui a próxima order e adiciona a coluna', () => {
     const board = buildBoard();
 
-    expect(() => board.addColumn('Em Revisão')).toThrow(NotImplementedError);
+    const column = board.addColumn('Em Revisão', 2);
+
+    expect(column.id).toBeTypeOf('string');
+    expect(column.name).toBe('Em Revisão');
+    expect(column.order).toBe(3);
+    expect(column.wipLimit).toBe(2);
+    expect(board.columns).toHaveLength(3);
+  });
+
+  it('começa em order 1 quando o quadro ainda não tem colunas', () => {
+    const board = Board.create('board-vazio', 'Vazio', []);
+
+    const column = board.addColumn('Primeira');
+
+    expect(column.order).toBe(1);
+    expect(column.wipLimit).toBeNull();
+  });
+
+  it('rejeita nome duplicado (case-insensitive)', () => {
+    const board = buildBoard();
+
+    expect(() => board.addColumn('a fazer')).toThrow(DuplicateColumnNameError);
+  });
+
+  it('rejeita nome inválido', () => {
+    const board = buildBoard();
+
+    expect(() => board.addColumn('a')).toThrow(InvalidColumnNameError);
+  });
+
+  it('rejeita nome que não é string', () => {
+    const board = buildBoard();
+
+    // @ts-expect-error propositalmente passando um tipo inválido
+    expect(() => board.addColumn(42)).toThrow(InvalidColumnNameError);
   });
 });
 

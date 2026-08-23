@@ -37,3 +37,17 @@ export class CardNotFoundError extends Error {
     this.name = 'CardNotFoundError';
   }
 }
+
+export class WipLimitExceededError extends Error {
+  constructor(columnName: string, wipLimit: number) {
+    super(`A coluna "${columnName}" já atingiu o limite de WIP (${wipLimit})`);
+    this.name = 'WipLimitExceededError';
+  }
+}
+
+export class DuplicateCardTitleError extends Error {
+  constructor(title: string) {
+    super(`Já existe um cartão com o título "${title}" nesta coluna`);
+    this.name = 'DuplicateCardTitleError';
+  }
+}

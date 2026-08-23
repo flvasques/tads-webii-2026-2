@@ -21,3 +21,28 @@ export function buildTestRepositories(): SeededRepositories {
     cardRepository: new InMemoryCardRepository(),
   };
 }
+
+/** Dois quadros isolados, para os testes da Atividade 11. */
+export function buildMultiBoardRepositories(): SeededRepositories {
+  const board1 = Board.create('board-1', 'Quadro de Teste', [
+    Column.create('col-1', 'Coluna 1', 1),
+    Column.create('col-2', 'Coluna 2', 2),
+  ]);
+  const board2 = Board.create('board-2', 'Outro Quadro', [Column.create('col-a', 'Ideias', 1)]);
+  return {
+    boardRepository: new InMemoryBoardRepository([board1, board2]),
+    cardRepository: new InMemoryCardRepository(),
+  };
+}
+
+/** Quadro com uma coluna de WIP = 1, para os testes da Atividade 5. */
+export function buildWipTestRepositories(): SeededRepositories {
+  const board = Board.create('board-1', 'Quadro de Teste', [
+    Column.create('col-1', 'Coluna 1', 1),
+    Column.create('col-limited', 'Limitada', 2, 1),
+  ]);
+  return {
+    boardRepository: new InMemoryBoardRepository(board),
+    cardRepository: new InMemoryCardRepository(),
+  };
+}

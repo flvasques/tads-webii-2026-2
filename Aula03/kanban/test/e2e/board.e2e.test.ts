@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createServer } from '../../src/server.js';
 
@@ -42,7 +42,37 @@ describe('Estado inicial: visualização do quadro hard-coded', () => {
 });
 
 describe('Jornada completa (a implementar conforme as atividades avançam)', () => {
-  test.todo(
-    'criar cartão → mover para "Em Andamento" → editar → mover para "Concluído" → excluir, tudo via HTTP',
-  );
+  it('criar cartão → mover para "Em Andamento" → editar → mover para "Concluído" → excluir, tudo via HTTP', async () => {
+    const app = createServer();
+
+    const created = await request(app)
+      .post('/cards')
+      .send({ title: 'Jornada e2e completa', columnId: 'col-todo' });
+    expect(created.status).toBe(302);
+
+    const search = await request(app).get('/cards/search').query({ query: 'Jornada e2e completa' });
+    const idMatch = search.text.match(/href="\/cards\/([^"]+)"/);
+    expect(idMatch).not.toBeNull();
+    const id = idMatch![1];
+
+    const moved = await request(app).post(`/cards/${id}/move`).send({ columnId: 'col-doing' });
+    expect(moved.status).toBe(302);
+
+    const updated = await request(app)
+      .post(`/cards/${id}/update`)
+      .send({ title: 'Jornada e2e editada', description: 'passou pelo doing' });
+    expect(updated.status).toBe(302);
+
+    const toDone = await request(app).post(`/cards/${id}/move`).send({ columnId: 'col-done' });
+    expect(toDone.status).toBe(302);
+
+    const board = await request(app).get('/');
+    expect(board.text).toContain('Jornada e2e editada');
+
+    const removed = await request(app).post(`/cards/${id}/delete`);
+    expect(removed.status).toBe(302);
+
+    const after = await request(app).get('/');
+    expect(after.text).not.toContain('Jornada e2e editada');
+  });
 });

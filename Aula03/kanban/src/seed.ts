@@ -72,12 +72,13 @@ export function createSeededRepositories(): SeededRepositories {
     Column.create(COLUMN_DONE, 'Concluído', 3),
   ];
   const board = Board.create('board-1', 'Quadro do Projeto', columns);
-  const boardRepository = new InMemoryBoardRepository(board);
+  const extra = Board.create('board-2', 'Quadro Extra', [Column.create('col-extra', 'Ideias', 1)]);
+  const boardRepository = new InMemoryBoardRepository([board, extra]);
 
   const cardRepository = new InMemoryCardRepository();
   for (const seedCard of SEED_CARDS) {
     cardRepository.save(
-      Card.create(seedCard.title, seedCard.columnId, seedCard.priority, seedCard.description ?? ''),
+      Card.create(seedCard.title, seedCard.columnId, seedCard.priority, seedCard.description ?? '', board.id),
     );
   }
 

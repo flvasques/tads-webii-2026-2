@@ -35,7 +35,9 @@
             <% } %>
             <% column.cards.forEach((card) => { %>
               <li class="border rounded-md p-3 shadow-sm">
-                <p class="text-sm font-medium text-slate-800"><%= card.title %></p>
+                <p class="text-sm font-medium text-slate-800">
+                  <a href="/cards/<%= card.id %>" class="hover:underline"><%= card.title %></a>
+                </p>
                 <% if (card.description) { %>
                   <p class="text-xs text-slate-500 mt-1"><%= card.description %></p>
                 <% } %>

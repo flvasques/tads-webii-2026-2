@@ -3,6 +3,7 @@ import ejs from 'ejs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BoardController } from './boards/BoardController.js';
+import { BoardColumnLookup } from './boards/BoardColumnLookup.js';
 import { CardController } from './cards/CardController.js';
 import { createRoutes } from './routes.js';
 import { errorHandler } from './shared/errorHandler.js';
@@ -27,7 +28,8 @@ export function createServer(repositories: SeededRepositories = createSeededRepo
   app.set('views', path.join(__dirname, 'views'));
 
   const boardController = new BoardController(repositories.boardRepository, repositories.cardRepository);
-  const cardController = new CardController(repositories.cardRepository, repositories.boardRepository);
+  const columnLookup = new BoardColumnLookup(repositories.boardRepository);
+  const cardController = new CardController(repositories.cardRepository, columnLookup);
   app.use(createRoutes(boardController, cardController));
 
   app.use(errorHandler);

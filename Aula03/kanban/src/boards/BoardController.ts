@@ -1,16 +1,13 @@
 import type { BoardRepository } from './BoardRepository.js';
 import type { CardRepository } from '../cards/CardRepository.js';
 import type { ControllerResult } from '../shared/http.js';
-import { NotImplementedError } from '../shared/errors.js';
 import { toBoardViewModel } from './boardView.js';
+import { BoardNotFoundError } from './errors.js';
 
 /**
  * CONTROLLER — orquestra o quadro: busca Board (boards/) e Cards (cards/),
  * pede para a View montar o "view model" e devolve o resultado pronto para
- * `routes.ts` renderizar. Repare que este Controller depende do
- * `CardRepository` do outro módulo para poder desenhar os cartões dentro
- * das colunas — é um acoplamento aferente do módulo `boards` em relação a
- * `cards` que vale discutir em sala (ver aula03.md, seção de discussão).
+ * `routes.ts` renderizar.
  */
 export class BoardController {
   constructor(
@@ -18,9 +15,9 @@ export class BoardController {
     private readonly cardRepository: CardRepository,
   ) {}
 
-  showBoard(): ControllerResult {
-    const board = this.boardRepository.getDefault();
-    const cards = this.cardRepository.findAll();
+  showBoard(boardId?: string): ControllerResult {
+    const board = this.requireBoard(boardId);
+    const cards = this.cardRepository.findByBoard(board.id);
     return {
       status: 200,
       view: 'board/index',
@@ -29,10 +26,29 @@ export class BoardController {
   }
 
   /**
-   * TODO (Atividade 7): criar uma nova coluna no quadro a partir do corpo
-   * da requisição (`{ name, wipLimit? }`) e redirecionar de volta para `/`.
+   * Atividade 7: cria uma coluna (`{ name, wipLimit? }`) e redireciona
+   * para o quadro. Nome inválido → 400; nome duplicado → 409.
    */
-  createColumn(_body: unknown): ControllerResult {
-    throw new NotImplementedError('BoardController#createColumn');
+  createColumn(body: unknown, boardId?: string): ControllerResult {
+    const { name, wipLimit } = body as { name?: string; wipLimit?: number | null };
+    const board = this.requireBoard(boardId);
+    board.addColumn(name as string, wipLimit ?? null);
+    this.boardRepository.save(board);
+    return { redirectTo: this.boardPath(board.id) };
+  }
+
+  private requireBoard(boardId?: string) {
+    if (!boardId) {
+      return this.boardRepository.getDefault();
+    }
+    const board = this.boardRepository.findById(boardId);
+    if (!board) {
+      throw new BoardNotFoundError(boardId);
+    }
+    return board;
+  }
+
+  private boardPath(boardId: string): string {
+    return boardId === this.boardRepository.getDefault().id ? '/' : `/boards/${boardId}`;
   }
 }

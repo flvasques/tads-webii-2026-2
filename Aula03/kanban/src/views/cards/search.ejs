@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Busca de cartões</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-100 min-h-screen">
+    <header class="bg-slate-900 text-white px-6 py-4">
+      <h1 class="text-xl font-semibold">Busca de cartões</h1>
+    </header>
+    <main class="p-6 max-w-xl">
+      <p class="text-sm text-slate-500 mb-4">
+        Termo: <span class="font-medium text-slate-700"><%= query || '(todos)' %></span>
+      </p>
+      <ul class="space-y-2">
+        <% if (cards.length === 0) { %>
+          <li class="text-sm text-slate-400 italic">Nenhum cartão encontrado</li>
+        <% } %>
+        <% cards.forEach((card) => { %>
+          <li class="bg-white rounded-lg shadow p-3">
+            <a href="/cards/<%= card.id %>" class="text-sm font-medium text-slate-800 hover:underline"><%= card.title %></a>
+            <% if (card.description) { %>
+              <p class="text-xs text-slate-500 mt-1"><%= card.description %></p>
+            <% } %>
+            <span class="inline-block mt-2 text-[11px] text-slate-500"><%= card.priority %></span>
+          </li>
+        <% }) %>
+      </ul>
+      <a href="/" class="inline-block mt-4 text-sm text-blue-600 hover:underline">Voltar ao quadro</a>
+    </main>
+  </body>
+</html>

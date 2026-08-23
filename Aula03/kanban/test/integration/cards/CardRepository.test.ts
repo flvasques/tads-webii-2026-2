@@ -51,6 +51,17 @@ describe('InMemoryCardRepository', () => {
     expect(repository.existsWithTitleInColumn('Editando este', 'col-todo', card.id)).toBe(false);
   });
 
+  it('filtra cartões por quadro e por coluna dentro de um quadro', () => {
+    const repository = new InMemoryCardRepository();
+    repository.save(Card.create('Do quadro 1', 'col-1', 'baixa', '', 'board-1'));
+    repository.save(Card.create('Do quadro 2', 'col-1', 'baixa', '', 'board-2'));
+
+    expect(repository.findByBoard('board-2')).toHaveLength(1);
+    expect(repository.findByColumn('col-1', 'board-2')[0].title).toBe('Do quadro 2');
+    expect(repository.existsWithTitleInColumn('Do quadro 1', 'col-1', undefined, 'board-2')).toBe(false);
+    expect(repository.existsWithTitleInColumn('Do quadro 2', 'col-1', undefined, 'board-2')).toBe(true);
+  });
+
   it('remove um cartão pelo id', () => {
     const repository = new InMemoryCardRepository();
     const card = Card.create('Para remover', 'col-todo');

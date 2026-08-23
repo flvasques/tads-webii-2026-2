@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><%= card.title %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-100 min-h-screen">
+    <header class="bg-slate-900 text-white px-6 py-4">
+      <h1 class="text-xl font-semibold"><%= card.title %></h1>
+    </header>
+    <main class="p-6 max-w-xl">
+      <div class="bg-white rounded-lg shadow p-6 space-y-3">
+        <p class="text-sm text-slate-500">Coluna: <span class="font-medium text-slate-700"><%= card.columnName %></span></p>
+        <p class="text-sm text-slate-500">Prioridade: <span class="font-medium text-slate-700"><%= card.priority %></span></p>
+        <% if (card.description) { %>
+          <p class="text-slate-700"><%= card.description %></p>
+        <% } %>
+      </div>
+      <a href="/" class="inline-block mt-4 text-sm text-blue-600 hover:underline">Voltar ao quadro</a>
+    </main>
+  </body>
+</html>

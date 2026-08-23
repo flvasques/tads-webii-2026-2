@@ -2,11 +2,18 @@ import type { NextFunction, Request, Response } from 'express';
 import { NotImplementedError } from './errors.js';
 import {
   CardNotFoundError,
+  DuplicateCardTitleError,
   InvalidCardColumnError,
   InvalidCardTitleError,
   InvalidPriorityError,
+  WipLimitExceededError,
 } from '../cards/errors.js';
-import { ColumnNotFoundError, InvalidColumnNameError } from '../boards/errors.js';
+import {
+  BoardNotFoundError,
+  ColumnNotFoundError,
+  DuplicateColumnNameError,
+  InvalidColumnNameError,
+} from '../boards/errors.js';
 
 /**
  * Ponto único de tradução "erro de domínio -> status HTTP". Ao criar um
@@ -22,6 +29,10 @@ const STATUS_BY_ERROR = new Map<Function, number>([
   [InvalidColumnNameError, 400],
   [ColumnNotFoundError, 404],
   [CardNotFoundError, 404],
+  [BoardNotFoundError, 404],
+  [WipLimitExceededError, 409],
+  [DuplicateCardTitleError, 409],
+  [DuplicateColumnNameError, 409],
 ]);
 
 // Os 4 parâmetros são obrigatórios: é assim que o Express reconhece uma

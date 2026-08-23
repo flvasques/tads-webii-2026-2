@@ -21,3 +21,17 @@ export class ColumnNotFoundError extends Error {
     this.name = 'ColumnNotFoundError';
   }
 }
+
+export class DuplicateColumnNameError extends Error {
+  constructor(name: string) {
+    super(`Já existe uma coluna com o nome "${name}" neste quadro`);
+    this.name = 'DuplicateColumnNameError';
+  }
+}
+
+export class BoardNotFoundError extends Error {
+  constructor(boardId: string) {
+    super(`Quadro ${boardId} não encontrado`);
+    this.name = 'BoardNotFoundError';
+  }
+}
