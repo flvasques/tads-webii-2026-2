@@ -1,5 +1,7 @@
+import { Card, type CardPriority } from './Card.js';
 import type { CardRepository } from './CardRepository.js';
 import type { BoardRepository } from '../boards/BoardRepository.js';
+import { ColumnNotFoundError } from '../boards/errors.js';
 import type { ControllerResult } from '../shared/http.js';
 import { NotImplementedError } from '../shared/errors.js';
 
@@ -16,16 +18,23 @@ export class CardController {
     private readonly boardRepository: BoardRepository,
   ) {}
 
-  /**
-   * TODO (Atividade 1): criar um cartão a partir do corpo da requisição
-   * (`{ title, columnId, priority?, description? }`) e redirecionar de
-   * volta para `/`. Regras a aplicar: título válido (`Card.create` já
-   * valida), coluna precisa existir no quadro (`boardRepository`), e não
-   * pode haver título duplicado na mesma coluna (Atividade 6 — podem
-   * implementar já aqui ou depois, é a mesma regra).
-   */
-  create(_body: unknown): ControllerResult {
-    throw new NotImplementedError('CardController#create');
+ 
+  create(body: unknown): ControllerResult {
+    const { title, columnId, priority, description } = body as {
+      title?: string;
+      columnId?: string;
+      priority?: CardPriority;
+      description?: string;
+    };
+
+    const card = Card.create(title as string, columnId as string, priority, description);
+
+    if (!this.boardRepository.getDefault().hasColumn(card.columnId)) {
+      throw new ColumnNotFoundError(card.columnId);
+    }
+
+    this.cardRepository.save(card);
+    return { redirectTo: '/' };
   }
 
   /**

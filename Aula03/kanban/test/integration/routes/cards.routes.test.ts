@@ -10,12 +10,6 @@ import { buildTestRepositories } from '../../helpers/fixtures.js';
  * `test.todo` correspondentes (já escritos abaixo como checklist).
  */
 describe('Rotas de cartões — estado inicial (não implementado)', () => {
-  it('POST /cards responde 501 (Atividade 1)', async () => {
-    const app = createServer(buildTestRepositories());
-    const response = await request(app).post('/cards').send({ title: 'Novo cartão', columnId: 'col-1' });
-    expect(response.status).toBe(501);
-  });
-
   it('POST /cards/:id/move responde 501 (Atividade 2)', async () => {
     const app = createServer(buildTestRepositories());
     const response = await request(app).post('/cards/qualquer-id/move').send({ columnId: 'col-2' });
@@ -47,10 +41,42 @@ describe('Rotas de cartões — estado inicial (não implementado)', () => {
   });
 });
 
+describe('POST /cards (Atividade 1)', () => {
+  it('cria um cartão válido e redireciona para /', async () => {
+    const app = createServer(buildTestRepositories());
+
+    const response = await request(app)
+      .post('/cards')
+      .send({ title: 'Novo cartão', columnId: 'col-1', priority: 'alta', description: 'detalhes' });
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe('/');
+
+    const board = await request(app).get('/');
+    expect(board.text).toContain('Novo cartão');
+    expect(board.text).toContain('detalhes');
+  });
+
+  it('rejeita título com menos de 3 caracteres com 400', async () => {
+    const app = createServer(buildTestRepositories());
+
+    const response = await request(app).post('/cards').send({ title: 'ab', columnId: 'col-1' });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('rejeita columnId de uma coluna que não existe com 404', async () => {
+    const app = createServer(buildTestRepositories());
+
+    const response = await request(app)
+      .post('/cards')
+      .send({ title: 'Cartão órfão', columnId: 'col-inexistente' });
+
+    expect(response.status).toBe(404);
+  });
+});
+
 describe('Checklist de comportamento esperado (implementar junto com cada atividade)', () => {
-  test.todo('POST /cards cria um cartão válido e redireciona para /');
-  test.todo('POST /cards rejeita título com menos de 3 caracteres com 400');
-  test.todo('POST /cards rejeita columnId de uma coluna que não existe com 404');
   test.todo('POST /cards impede título duplicado na mesma coluna com 409 (Atividade 6)');
 
   test.todo('POST /cards/:id/move move o cartão para a coluna informada e redireciona para /');
