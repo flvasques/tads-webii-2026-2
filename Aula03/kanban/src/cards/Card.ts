@@ -109,13 +109,12 @@ export class Card {
   }
 
   /**
-   * TODO (Atividade 2): mover o cartão para outra coluna. Pontos a
-   * decidir: quem valida se `newColumnId` existe no quadro (o Card não
-   * conhece o Board) e como aplicar o limite de WIP da coluna destino
-   * (Atividade 5) sem o Card também precisar conhecer o Board.
+   * Atividade 2: move o cartão para outra coluna. O Card só valida a
+   * forma do `columnId`; se a coluna existe no quadro (e o limite de WIP,
+   * Atividade 5) é regra que atravessa módulos e fica no Controller.
    */
-  changeColumn(_newColumnId: string): void {
-    throw new NotImplementedError('Card#changeColumn');
+  changeColumn(newColumnId: string): void {
+    this._columnId = Card.validateColumnId(newColumnId);
   }
 
   /** TODO (Atividade 3): renomear e/ou trocar a descrição do cartão. */

@@ -30,3 +30,10 @@ export class InvalidPriorityError extends Error {
     this.name = 'InvalidPriorityError';
   }
 }
+
+export class CardNotFoundError extends Error {
+  constructor(cardId: string) {
+    super(`Cartão ${cardId} não encontrado`);
+    this.name = 'CardNotFoundError';
+  }
+}

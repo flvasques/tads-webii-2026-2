@@ -1,6 +1,7 @@
 import { Card, type CardPriority } from './Card.js';
 import type { CardRepository } from './CardRepository.js';
 import type { BoardRepository } from '../boards/BoardRepository.js';
+import { CardNotFoundError } from './errors.js';
 import { ColumnNotFoundError } from '../boards/errors.js';
 import type { ControllerResult } from '../shared/http.js';
 import { NotImplementedError } from '../shared/errors.js';
@@ -38,12 +39,28 @@ export class CardController {
   }
 
   /**
-   * TODO (Atividade 2): mover um cartão para outra coluna
-   * (`{ columnId }` no corpo). Regras: coluna destino precisa existir;
-   * respeitar o limite de WIP da coluna destino (Atividade 5).
+   * Atividade 2: move um cartão para outra coluna (`{ columnId }` no
+   * corpo). 404 se o cartão ou a coluna destino não existem. A checagem
+   * de coluna vem ANTES de `changeColumn` para não mutar o cartão num
+   * fluxo que termina em erro.
+   *
+   * Decisão do grupo: o limite de WIP da coluna destino fica para a
+   * Atividade 5 — aqui só validamos existência.
    */
-  move(_id: string, _body: unknown): ControllerResult {
-    throw new NotImplementedError('CardController#move');
+  move(id: string, body: unknown): ControllerResult {
+    const card = this.cardRepository.findById(id);
+    if (!card) {
+      throw new CardNotFoundError(id);
+    }
+
+    const { columnId } = body as { columnId?: string };
+    if (!this.boardRepository.getDefault().hasColumn(columnId as string)) {
+      throw new ColumnNotFoundError(columnId as string);
+    }
+
+    card.changeColumn(columnId as string);
+    this.cardRepository.save(card);
+    return { redirectTo: '/' };
   }
 
   /**

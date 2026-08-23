@@ -59,13 +59,23 @@ describe('Card.restore', () => {
   });
 });
 
-describe('métodos ainda não implementados (atividades 2 e 3)', () => {
-  it('Card#changeColumn lança NotImplementedError', () => {
+describe('Card#changeColumn (Atividade 2)', () => {
+  it('troca o columnId do cartão', () => {
     const card = Card.create('Cartão', 'col-todo');
 
-    expect(() => card.changeColumn('col-doing')).toThrow(NotImplementedError);
+    card.changeColumn('col-doing');
+
+    expect(card.columnId).toBe('col-doing');
   });
 
+  it('rejeita columnId vazio', () => {
+    const card = Card.create('Cartão', 'col-todo');
+
+    expect(() => card.changeColumn('   ')).toThrow(InvalidCardColumnError);
+  });
+});
+
+describe('métodos ainda não implementados (atividade 3)', () => {
   it('Card#rename lança NotImplementedError', () => {
     const card = Card.create('Cartão', 'col-todo');
 
