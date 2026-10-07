@@ -1,0 +1,34 @@
+@base = http://localhost:3008
+
+### 1. Cadastrar (o código aparece no console ou chega por e-mail)
+POST {{base}}/users
+Content-Type: application/json
+
+{ "name": "Fernando", "email": "vinicius.machado@riogrande.ifrs.edu.br" }
+
+### 2. Listar usuários (verified: false)
+GET {{base}}/users
+
+### 3. Verificar — troque pelo código recebido
+POST {{base}}/users/verify
+Content-Type: application/json
+
+{ "email": "vinicius.machado@riogrande.ifrs.edu.br", "code": "856323" }
+
+### Erro: e-mail duplicado (409)
+POST {{base}}/users
+Content-Type: application/json
+
+{ "name": "Ana", "email": "ana@ifrs.edu.br" }
+
+### Erro: e-mail inválido (400)
+POST {{base}}/users
+Content-Type: application/json
+
+{ "name": "Bruno", "email": "bruno-sem-arroba" }
+
+### Erro: usuário inexistente (404)
+POST {{base}}/users/verify
+Content-Type: application/json
+
+{ "email": "ninguem@ifrs.edu.br", "code": "123456" }
